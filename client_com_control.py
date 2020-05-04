@@ -1,9 +1,26 @@
 import os
 import socket
+import time
 
-HOST = input('Enter server ip address: ')
-##HOST = '127.0.0.1'
 PORT = 60002
+
+gateWay = input('Enter default gateway: ')
+t = gateWay.split('.')
+partGate = str(t[0]) + '.' + str(t[1]) + '.' + str(t[2]) + '.'
+for i in range(0, 256):
+    HOST = partGate + str(i)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.settimeout(0.0015)
+        s.connect((HOST, PORT))
+        s.sendall(b"found")
+    except:
+        pass
+    else:
+        print(f"[+] Found server ip: {HOST}")
+        s.close()
+        break
+    
 
 def TaskList(s):
     remaining = int.from_bytes(s.recv(4), 'big')
@@ -14,21 +31,31 @@ def TaskList(s):
         taskList+=t
     print(taskList.decode())
     print("Enter the full name of the task you want to kill")
-    k = input('> ')
+    while True:
+        k = input('> ')
+        if not k=='':
+            break
     s.send(k.encode())
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    print('[+] Connecting to server...')
+    time.sleep(1)
     s.connect((HOST, PORT))
-    print("Choose the number: ")
-    print()
-    print("1. Tasklist")
-    print("2. Lock")
     while True:
+        print('[+] Connected successfully')
+        print()
+        print("Choose the number: ")
+        print("1. Tasklist")
+        print("2. Lock")
+        print('3. Exit server')
         c = input("Your choice > ")
         if c=='1':
             s.sendall('tasklist'.encode())
             TaskList(s)
-            break
         if c=='2':
             s.sendall('lock'.encode())
             break
+        if c=='3':
+            s.sendall('exit'.encode())
+            break
+        os.system('cls')
