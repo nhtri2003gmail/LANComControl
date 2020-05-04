@@ -9,17 +9,17 @@ t = gateWay.split('.')
 partGate = str(t[0]) + '.' + str(t[1]) + '.' + str(t[2]) + '.'
 for i in range(0, 256):
     HOST = partGate + str(i)
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.settimeout(0.0015)
-        s.connect((HOST, PORT))
-        s.sendall(b"found")
-    except:
-        pass
-    else:
-        print(f"[+] Found server ip: {HOST}")
-        s.close()
-        break
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.settimeout(0.1)
+            s.connect((HOST, PORT))
+            s.sendall(b"found")
+        except:
+            print(HOST + ': False')
+        else:
+            print(f"[+] Found server ip: {HOST}")
+            s.close()
+            break
     
 
 def TaskList(s):
@@ -40,9 +40,9 @@ def TaskList(s):
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print('[+] Connecting to server...')
     time.sleep(1)
-    s.connect((HOST, PORT))
+    s.connect(('192.168.10.118', PORT))
+    print('[+] Connected successfully')
     while True:
-        print('[+] Connected successfully')
         print()
         print("Choose the number: ")
         print("1. Tasklist")
